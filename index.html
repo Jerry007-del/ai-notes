@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 笔记助手 · Jerry 的 AI 应用实战</title>
+<style>
+:root{
+  --bg:#070b1f;--card:rgba(255,255,255,.055);--line:rgba(255,255,255,.13);
+  --text:#e8ecf8;--muted:#96a0c4;--cyan:#38bdf8;--violet:#a78bfa;--pink:#f472b6;
+  --green:#4ade80;--amber:#fbbf24;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--bg);color:var(--text);overflow-x:hidden;
+  font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;line-height:1.75;
+}
+body::before,body::after{content:"";position:fixed;border-radius:50%;filter:blur(120px);z-index:-1}
+body::before{width:600px;height:600px;top:-180px;left:-140px;background:radial-gradient(circle,#1d4ed8aa,transparent 70%);animation:d1 22s ease-in-out infinite}
+body::after{width:560px;height:560px;bottom:-200px;right:-160px;background:radial-gradient(circle,#9333ea99,transparent 70%);animation:d2 27s ease-in-out infinite}
+@keyframes d1{0%,100%{transform:translate(0,0)}50%{transform:translate(120px,80px)}}
+@keyframes d2{0%,100%{transform:translate(0,0)}50%{transform:translate(-100px,-60px)}}
+.wrap{max-width:900px;margin:0 auto;padding:0 22px 90px}
+.hero{text-align:center;padding:76px 0 44px;border-bottom:1px solid var(--line);margin-bottom:48px}
+.badge{display:inline-block;font-size:13px;letter-spacing:2px;color:var(--cyan);border:1px solid #38bdf855;padding:6px 18px;border-radius:100px;margin-bottom:22px;background:#38bdf810}
+h1{font-size:clamp(28px,5.2vw,48px);font-weight:800;line-height:1.25;margin-bottom:16px}
+h1 .flow{background:linear-gradient(90deg,var(--cyan),var(--violet),var(--pink),var(--cyan));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:fl 7s linear infinite}
+@keyframes fl{to{background-position:300% 0}}
+.hero p{color:var(--muted);font-size:16px;max-width:620px;margin:0 auto}
+.nav{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+.nav a{
+  font-size:13.5px;color:var(--muted);text-decoration:none;padding:9px 18px;border-radius:100px;
+  border:1px solid var(--line);background:rgba(255,255,255,.04);transition:.25s;
+}
+.nav a:hover{border-color:#38bdf855;color:var(--cyan);background:#38bdf814}
+section{margin-bottom:56px}
+h2{font-size:clamp(20px,3.2vw,26px);font-weight:750;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+h2::before{content:"";width:8px;height:24px;border-radius:4px;background:linear-gradient(180deg,var(--cyan),var(--violet))}
+.lead{color:var(--muted);font-size:15px;margin-bottom:24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.stat{text-align:center;padding:22px 16px}
+.stat .n{font-size:30px;font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;display:block}
+.stat .l{font-size:13.5px;color:var(--muted);margin-top:4px}
+.step{display:grid;grid-template-columns:44px 1fr;gap:16px;padding:18px 0;border-bottom:1px solid var(--line)}
+.step:last-child{border-bottom:none}
+.step-n{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:15px;color:#070b1f;background:linear-gradient(135deg,var(--cyan),var(--violet))}
+.step.done .step-n{background:linear-gradient(135deg,var(--green),var(--cyan))}
+.step h4{font-size:16.5px;font-weight:700;margin-bottom:4px}
+.step .d{font-size:14.5px;color:var(--muted)}
+.step .st{font-size:12.5px;margin-top:6px;display:inline-block;padding:3px 10px;border-radius:6px}
+.st.done{background:#4ade801a;color:var(--green);border:1px solid #4ade8044}
+.st.wait{background:#fbbf241a;color:var(--amber);border:1px solid #fbbf2444}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:13px;padding:6px 13px;border-radius:8px;background:#ffffff0d;border:1px solid var(--line);color:#cbd5e1}
+.chip.hi{background:#38bdf81a;border-color:#38bdf855;color:#bae6fd}
+.note{border-left:4px solid var(--amber);background:linear-gradient(90deg,#fbbf2414,transparent);padding:18px 22px;border-radius:0 12px 12px 0;margin-top:22px;font-size:14.5px}
+.note strong{color:var(--amber)}
+.code{background:#ffffff0a;border:1px solid var(--line);border-radius:12px;padding:16px 18px;font-family:ui-monospace,Consolas,monospace;font-size:13.5px;overflow-x:auto;margin-top:14px;color:#cbd5e1}
+.code .c{color:#6b769b}
+.code .k{color:var(--violet)}
+.code .s{color:var(--green)}
+footer{text-align:center;padding:32px 0 0;border-top:1px solid var(--line);color:#5b648a;font-size:13.5px}
+footer .sig{color:var(--muted);font-size:15px;margin-bottom:8px}
+@media(max-width:640px){.step{grid-template-columns:1fr;gap:10px}.card{padding:20px}.hero{padding:50px 0 32px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="badge">项目 01 · AI 应用开发实战</div>
+  <h1>AI 笔记助手<br><span class="flow">从 0 到 1 的第一个 AI 应用</span></h1>
+  <p>不写"管理系统"，不写"待办清单"。<br>这是一个真正会调用大模型、能读懂你资料、会回答问题的 AI 应用。</p>
+  <div class="nav">
+    <a href="https://jerry007-del.github.io">← 个人主页</a>
+    <a href="https://jerry-ai-roadmap.app.workbuddy.host/?sharecode=L4Y5AI35HX">24 个月作战地图</a>
+    <a href="https://github.com/Jerry007-del/ai-notes">GitHub 源码</a>
+  </div>
+</header>
+
+<section>
+  <h2>这个项目在解决什么</h2>
+  <p class="lead">课程资料、笔记、论文 dumped 一堆进去，问它问题，它基于你的内容回答，并标出答案来自哪一段。</p>
+  <div class="card">
+    <div class="code">
+<span class="c">// 最终形态长这样 —— 一个能"读懂你笔记"的 AI</span>
+<span class="k">POST</span> /api/ask  { <span class="s">"question"</span>: <span class="s">"期末重点考哪几章？"</span> }
+<span class="c">→</span> <span class="s">"根据《数据结构》第 3、5、7 章，考察重点是树与图…"</span>  <span class="c">📎 来源：第 5 章 P42</span>
+    </div>
+    <div class="chips">
+      <span class="chip hi">RAG 检索增强</span>
+      <span class="chip hi">LLM API 调用</span>
+      <span class="chip">Node.js 后端代理</span>
+      <span class="chip">SSE 流式输出</span>
+      <span class="chip">Embedding 向量化</span>
+      <span class="chip">pgvector 向量检索</span>
+      <span class="chip">Python + FastAPI</span>
+      <span class="chip">LangChain</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>进度</h2>
+  <p class="lead">每一格都是能跑起来、能演示、能写进简历的完整交付物。</p>
+  <div class="grid g4">
+    <div class="card stat"><span class="n">1/4</span><span class="l">已完成阶段</span></div>
+    <div class="card stat"><span class="n">3</span><span class="l">已验证 API 实验</span></div>
+    <div class="card stat"><span class="n">0</span><span class="l">依赖包（零依赖起步）</span></div>
+    <div class="card stat"><span class="n">¥0</span><span class="l">练手期 API 成本</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>四个阶段</h2>
+  <p class="lead">这是路线图里 Step 1 到 Step 4 的实际推进状态。</p>
+  <div class="card">
+    <div class="step done">
+      <div class="step-n">1</div>
+      <div>
+        <h4>打通第一次调用</h4>
+        <p class="d">用 Node 内置 fetch 直连 DeepSeek API，让终端里蹦出 AI 的回答。理解 LLM API 的本质：一个文本进、文本出、按 token 收费的 HTTP 接口。</p>
+        <span class="st done">✓ 已完成 · 含 3 个行为验证实验</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-n">2</div>
+      <div>
+        <h4>加一层后端代理</h4>
+        <p class="d">密钥只存在服务端，前端拿不到。亲手验证那个知识点 —— 为什么 API Key 绝对不能写进前端代码。</p>
+        <span class="st wait">进行中</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-n">3</div>
+      <div>
+        <h4>网页界面 + SSE 流式输出</h4>
+        <p class="d">答案像打字机一样逐字浮现 —— 所有真实 AI 产品的标配，也是面试能聊出深度的点。</p>
+        <span class="st wait">待开始</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-n">4</div>
+      <div>
+        <h4>接 RAG，让它读你的笔记</h4>
+        <p class="d">切片 → 向量化 → 检索 → 拼进提示词。做完这一步，简历上就能写"实现了 RAG 检索链路"。</p>
+        <span class="st wait">待开始</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>为什么选这个项目</h2>
+  <div class="grid g2">
+    <div class="card">
+      <h4 style="font-size:15px;color:var(--cyan);margin-bottom:10px">就业视角</h4>
+      <p style="font-size:14.5px;color:var(--muted)">2026 年前端岗位需求同比下降约 48%，而 AI 应用开发方向需求增长 47%，智能体相关职位增速更达 455%。这个项目覆盖了目标岗位 JD 里几乎全部核心技术关键词。</p>
+    </div>
+    <div class="card">
+      <h4 style="font-size:15px;color:var(--cyan);margin-bottom:10px">学习视角</h4>
+      <p style="font-size:14.5px;color:var(--muted)">它是一条从"会写网页"通向"能做 AI 应用"的完整爬坡路线。每一阶段都是完整可展示的东西，不会出现"学了三天啥也没有"的绝望期。</p>
+    </div>
+  </div>
+  <div class="note">
+    <strong>关于技术选型：</strong>先用最熟的 JavaScript 打通模型调用（零心理负担），再转 Python + FastAPI 承接 AI 层，最后用 LangChain 重构。顺序本身就是一课 —— 迁移语言能力，比从零学一门语言快得多。
+  </div>
+</section>
+
+<footer>
+  <div class="sig">Jerry · 软件工程大二 · Web 方向 · 郑州</div>
+  <div>2026 年 11 月开始 · 持续更新</div>
+  <p style="margin-top:16px">源码：<a href="https://github.com/Jerry007-del/ai-notes" style="color:var(--cyan)">github.com/Jerry007-del/ai-notes</a></p>
+</footer>
+
+</div>
+</body>
+</html>
